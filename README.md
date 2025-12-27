@@ -1,4 +1,4 @@
-# 📍 SNAP-MAP  
+# 📍 SnapMap  
 *A hyperlocal, map-based photo sharing app designed for college campuses.*
 
 SNAP-MAP allows students to instantly capture photos and share them on a live campus map. All photos are geo-tagged, stored securely, and shown as clusters/bubbles on a dynamic map. Students can explore events happening around them, view photos contributed by others, and participate in the campus community in real time.
@@ -69,7 +69,7 @@ SNAP-MAP allows students to instantly capture photos and share them on a live ca
 # 📂 Project Structure
 
 ```
-snap-map/                         → Project root
+SnapMap/                         → Project root
 │
 │   CONTRIBUTING.md               → Contribution guidelines
 │   README.md                     → Project overview
