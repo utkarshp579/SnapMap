@@ -7,10 +7,10 @@ const CONTAINER_NAME = process.env.CONTAINER_NAME
 
 async function uploadToAzure(buffer, fileName) {
     if(!buffer || !fileName)
-        throw new error("Buffer and Filename are required")
+        throw new Error("Buffer and Filename are required")
 
     if(!process.env.AZURE_STORAGE_CONNECTION)
-        throw new error("Connection string is required")
+        throw new Error("Connection string is required")
 
 
     const blobServiceClient = BlobServiceClient.fromConnectionString(         
