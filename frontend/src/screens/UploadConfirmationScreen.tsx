@@ -53,6 +53,9 @@ const UploadConfirmationScreen = ({
       form.append("lat", String(location.coords.latitude));
       form.append("lon", String(location.coords.longitude));
 
+
+      console.log("form", form);
+      console.log(`${API_BASE_URL}/api/v1/photos/upload-photo`);
       const response = await fetch(
         `${API_BASE_URL}/api/v1/photos/upload-photo`,
         {
@@ -62,7 +65,11 @@ const UploadConfirmationScreen = ({
         }
       );
 
-      if (!response.ok) throw new Error("Upload failed");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("errorText", errorText);
+        throw new Error("Upload failed");
+      }
 
       Alert.alert("Success", "Photo uploaded successfully", [
         { text: "OK", onPress: () => navigation.navigate("HomeScreen") },

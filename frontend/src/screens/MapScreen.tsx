@@ -1,4 +1,4 @@
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as Location from "expo-location";
@@ -13,6 +13,12 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
     latitude: number;
     longitude: number;
   } | null>(null);
+
+  type PhotoCoordinate = {
+    latitude: number;
+    longitude: number;
+  };
+  const [photos, setPhotos] = useState<PhotoCoordinate[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -42,6 +48,13 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
     );
   }
 
+  useEffect(() => {
+    (async () => {
+      const photos = await getPhotos();
+      setPhotos(photos);
+    })();
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <MapView
@@ -56,6 +69,9 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         showsUserLocation={true}
         showsMyLocationButton={true}
       />
+      {photos.map((photo) => (
+        <Marker key={photo.id} coordinate={photo} />
+      ))}
       <TouchableOpacity
         style={styles.CameraButton}
         onPress={() => navigation.navigate("CameraScreen")}

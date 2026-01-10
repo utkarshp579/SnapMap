@@ -48,6 +48,8 @@ export const uploadPhoto = async (req, res) => {
       return res.status(404).json({ message: "User not registered" });
     }
 
+    console.log("user", user);
+
 
     const fileName = buildFileName(req.file.originalname, req.userId);
     const imageUrl = await uploadToAzure(req.file.buffer, fileName);
