@@ -42,14 +42,7 @@ const SignInScreen = ({ navigation }: ScreenProps<"SignInScreen">) => {
       <Text style={styles.subtitle}>Sign in to continue</Text>
 
       <TouchableOpacity style={styles.button} onPress={onSignInWithGoogle}>
-        <Text style={styles.buttonText}>Sign In with Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.linkButton}
-        onPress={() => navigation.navigate("SignUpScreen")}
-      >
-        <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
+        <Text style={styles.buttonText}>Continue with Google</Text>
       </TouchableOpacity>
     </View>
   );

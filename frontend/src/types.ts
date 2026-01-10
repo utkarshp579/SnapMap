@@ -5,7 +5,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 export type RootParamList = {
   SplashScreen: undefined;
   SignInScreen: undefined;
-  SignUpScreen: undefined;
   HomeScreen: undefined;
   CameraPermissionScreen: undefined;
   LocationPermissionScreen: undefined;
