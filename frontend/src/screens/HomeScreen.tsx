@@ -23,6 +23,12 @@ const styles = HomeStyle;
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
+const DEFAULT_RADIUS_METERS = 300;
+
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
 
 type PhotoMarker = {
   id: string;
@@ -33,20 +39,25 @@ type PhotoMarker = {
 const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
   const { user } = useUser();
   const insets = useSafeAreaInsets();
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [location, setLocation] = useState<Coordinates | null>(null);
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
+  const defaultLocation = {
+    latitude: 25.3176,
+    longitude: 82.9739,
+  };
 
-  const getPhotos = async (): Promise<PhotoMarker[]> => {
+  const getPhotos = async (coords: Coordinates): Promise<PhotoMarker[]> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/photos/all-photos`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const query = `lat=${coords.latitude}&lon=${coords.longitude}&radius=${DEFAULT_RADIUS_METERS}`;
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/photos/nearby?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         console.error("Failed to fetch photos:", response.statusText);
@@ -77,27 +88,31 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const loc = await Location.getCurrentPositionAsync();
-        setLocation({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-        });
-      }
-    })();
+      let coords: Coordinates = defaultLocation;
 
-    (async () => {
-      const fetchedPhotos = await getPhotos();
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          const loc = await Location.getCurrentPositionAsync();
+          coords = {
+            latitude: loc.coords.latitude,
+            longitude: loc.coords.longitude,
+          };
+        } else {
+          console.warn(
+            "Location permission not granted, using default location for nearby photos"
+          );
+        }
+      } catch (error) {
+        console.error("Error getting current location, using default:", error);
+      }
+
+      setLocation(coords);
+
+      const fetchedPhotos = await getPhotos(coords);
       setPhotos(fetchedPhotos);
     })();
   }, []);
-
-  // Default location if permission not granted (for demo purposes)
-  const defaultLocation = {
-    latitude: 25.3176,
-    longitude: 82.9739,
-  };
 
   const mapLocation = location || defaultLocation;
   const activeCount = photos.length || 124;

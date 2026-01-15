@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from "reac
 import React, { useState, useEffect } from "react";
 import * as Location from "expo-location";
 import type { ScreenProps } from "../types";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapStyle from "../styles/MapStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
@@ -13,6 +13,12 @@ const styles = MapStyle;
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
+const DEFAULT_RADIUS_METERS = 300;
+
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
 
 type PhotoMarker = {
   id: string;
@@ -21,23 +27,28 @@ type PhotoMarker = {
 };
 
 const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [location, setLocation] = useState<Coordinates | null>(null);
 
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
 
-  const getPhotos = async (): Promise<PhotoMarker[]> => {
-    try {
-      console.log(`${API_BASE_URL}/api/v1/photos/all-photos`);
+  const defaultLocation: Coordinates = {
+    latitude: 25.3176,
+    longitude: 82.9739,
+  };
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/photos/all-photos`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  const getPhotos = async (coords: Coordinates): Promise<PhotoMarker[]> => {
+    try {
+      const query = `lat=${coords.latitude}&lon=${coords.longitude}&radius=${DEFAULT_RADIUS_METERS}`;
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/photos/nearby?${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.log("response", response);
 
@@ -65,28 +76,29 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      let coords: Coordinates = defaultLocation;
 
-      if (status == "granted") {
-        console.log("Permission successful");
-      } else {
-        console.log("Permission not granted");
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status == "granted") {
+          console.log("Permission successful");
+          const loc = await Location.getCurrentPositionAsync();
+          coords = {
+            latitude: loc.coords.latitude,
+            longitude: loc.coords.longitude,
+          };
+        } else {
+          console.log("Permission not granted, using default location");
+        }
+      } catch (error) {
+        console.error("Error getting current location, using default:", error);
       }
 
-      const loc = await Location.getCurrentPositionAsync();
+      setLocation(coords);
 
-      console.log(loc);
-      setLocation({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-      });
-    })();
-
-    (async () => {
-      const fetchedPhotos = await getPhotos();
+      const fetchedPhotos = await getPhotos(coords);
       setPhotos(fetchedPhotos);
     })();
-
   }, []);
 
   if (!location) {

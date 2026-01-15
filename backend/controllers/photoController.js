@@ -99,6 +99,50 @@ export const getAllPhotos = async (req, res) => {
   }
 };
 
+export const getNearbyPhotos = async (req, res) => {
+  try {
+    const { lat, lon, radius } = req.query || {};
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+    const parsedRadius = parseFloat(radius);
+    const maxDistance =
+      Number.isFinite(parsedRadius) && parsedRadius > 0
+        ? parsedRadius
+        : 300; // default to 300 meters
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or missing lat/lon for nearby search" });
+    }
+
+    const photos = await Photo.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          },
+          $maxDistance: maxDistance,
+        },
+      },
+    })
+      .sort({ timestamp: -1 })
+      .lean();
+
+    console.log(
+      `✅ Found ${photos.length} nearby photos within ${maxDistance}m of ${latitude},${longitude}`
+    );
+
+    return res.status(200).json(photos);
+  } catch (error) {
+    console.error("Error fetching nearby photos:", error);
+    return res.status(500).json({
+      message: "Internal server error: " + error.message,
+    });
+  }
+};
+
 // Test upload endpoint without authentication (for testing only)
 export const testUploadPhoto = async (req, res) => {
   try {
