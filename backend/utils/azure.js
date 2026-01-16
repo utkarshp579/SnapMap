@@ -5,7 +5,7 @@ configDotenv()
 
 const CONTAINER_NAME = process.env.CONTAINER_NAME
 
-async function uploadToAzure(buffer, fileName) {
+async function singleUploadToAzure(buffer, fileName) {
     if(!buffer || !fileName)
         throw new Error("Buffer and Filename are required")
 
@@ -38,4 +38,4 @@ async function uploadToAzure(buffer, fileName) {
 
 }
 
-export default uploadToAzure
+export default singleUploadToAzure

@@ -2,7 +2,7 @@ import User from "../models/User.js"
 import { createClerkClient } from "@clerk/backend"
 import crypto from "crypto";
 import path from "path";
-import uploadToAzure from "../utils/azure.js";
+import singleUploadToAzure from "../utils/azure.js";
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -138,7 +138,7 @@ export const profileUpdate = async (req, res) => {
                 const id = crypto.randomUUID();
                 const fileName = `${clerkUserId}/profile/${Date.now()}-${id}${safeExt}`;
                 
-                const imageUrl = await uploadToAzure(req.file.buffer, fileName);
+                const imageUrl = await singleUploadToAzure(req.file.buffer, fileName);
                 console.log("Profile image uploaded successfully:", imageUrl);
                 updateFields.profileImage = imageUrl;
             } catch (uploadError) {
