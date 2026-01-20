@@ -53,7 +53,6 @@ export default {
 
   extra: {
     // API_BASE_URL: `https://snapmap.onrender.com`
-    // API_BASE_URL: `http://${ip}:5000`
-    API_BASE_URL: `http://10.237.129.171:5000`
+    API_BASE_URL: `http://${ip}:5000`
   }
 };
